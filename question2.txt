@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Live Transcription</title>
+</head>
+<body>
+    {% extends "master.html" %}
+    {% block content %}
+        <h1>Transcribe Audio With Flask 2.0</h1>
+        <p id="status">Connection status will go here</p>
+        <p id="original-text">{{chatgpt_return}}</p>
+        <p id="transcript"></p>
+
+        <script>
+            // Define sanitizeText function before it's used
+            const sanitizeText = (text) => {
+                // Remove punctuation from the text
+                return text.replace(/[^\w\s]/g, '');
+            };
+
+            document.addEventListener('DOMContentLoaded', () => {
+                const originalTextElement = document.getElementById('original-text');
+                const transcriptElement = document.getElementById('transcript');
+                const socket = new WebSocket('ws://localhost:5555/listen');
+                let originalWords = (originalTextElement.textContent).split(' ');
+                let currentIndex = 0;
+
+                socket.onopen = () => {
+                    document.querySelector('#status').textContent = 'Connected';
+                };
+
+                socket.onmessage = (message) => {
+                    const received = message.data;
+                    if (received) {
+                        // Compare the received word with the expected word
+                        const sanitizedReceived = sanitizeText(received);
+                        const isCorrect = compareWords(sanitizedReceived, sanitizeText(originalWords[currentIndex]));
+
+                        // Change color based on correctness
+                        if (isCorrect) {
+                            originalWords[currentIndex] = `<span style="color: green">${originalWords[currentIndex]}</span>`;
+                            currentIndex++;
+                        } else {
+                            originalWords[currentIndex] = `<span style="color: red">${originalWords[currentIndex]}</span>`;
+                        }
+
+                        
+                        updateDisplay();
+                    }
+                };
+
+                const compareWords = (transcribedWord, originalWord) => {
+                    return transcribedWord.toLowerCase() === originalWord.toLowerCase();
+                };
+
+                const updateDisplay = () => {
+                    // Update the original text with colored words
+                    originalTextElement.innerHTML = originalWords.join(' ');
+
+                    // Display the transcribed words under the original text
+                    transcriptElement.innerHTML = originalWords.slice(0, currentIndex).join(' ');
+
+                    // Scroll the transcript into view
+                    transcriptElement.scrollIntoView({ behavior: 'smooth', block: 'end', inline: 'nearest' });
+                };
+
+                navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+                    if (!MediaRecorder.isTypeSupported('audio/webm'))
+                        return alert('Browser not supported');
+
+                    const mediaRecorder = new MediaRecorder(stream, {
+                        mimeType: 'audio/webm',
+                    });
+
+                    mediaRecorder.addEventListener('dataavailable', async (event) => {
+                        if (event.data.size > 0 && socket.readyState == 1) {
+                            socket.send(event.data);
+                        }
+                    });
+
+                    mediaRecorder.start(250);
+                });
+            });
+        </script>
+
+    {% endblock %}
+</body>
+</html>

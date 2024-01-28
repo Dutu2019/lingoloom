@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+
+</head>
+
+<body>
+{% extends "master.html" %}
+{% block content %}
+
+<form method="post" action="{{ url_for('daily_exercise') }}">
+    {% for question in questions %}
+        <p>{{ question }}</p>
+        <label for="response">Your Response:</label>
+        <input type="text" name="response" required>
+    {% endfor %}
+    <button type="submit">Submit</button>
+</form>
+
+</body>
+
+{% endblock %}
+</body>
+</html>
