@@ -1,25 +1,91 @@
 <!DOCTYPE html>
 <html>
 
+
 <head>
-
-
+    <style>
+        input[type="submit"]{
+            background-color: #4b4741;
+            color: #fff;
+          margin-top: .625rem;
+          padding: .75rem 2.5rem;
+          box-shadow: 0px 4px 0px 0px #D58E1F;
+          border-radius: 5px;
+            border: 0;
+          font-weight: bold;
+          font-size: 1.375rem;
+          letter-spacing: 0.28px;
+          text-transform: uppercase;
+          font-family: 'Montserrat';
+            outline: none;
+            &:hover{
+                box-shadow: 0px 3px 0px 0px #D58E1F;
+                cursor: pointer;
+                top: 1px;
+                position: relative;
+            }
+            &:active{
+                box-shadow: 0px 0px 0px 0px #D58E1F;
+                cursor: pointer;
+                top: 4px;
+                position: relative;
+                
+            }
+        }    
+    </style>
 </head>
 
+
 <body>
+
 {% extends "master.html" %}
 {% block content %}
 
-<form method="post" action="{{ url_for('daily_exercise') }}">
-    {% for question in questions %}
-        <p>{{ question }}</p>
-        <label for="response">Your Response:</label>
-        <input type="text" name="response" required>
-    {% endfor %}
-    <button type="submit">Submit</button>
-</form>
 
-</body>
+
+
+
+<form action="{{ url_for('daily_exercise') }}" role="form" method="post" id="reused_form" enctype="multipart/form-data">
+    <div class="demo-page">
+        <style scoped>
+            @import "../static/styles/create_account.css";
+        </style>
+        <main class="demo-page-content">
+          <section>
+            <div class="href-target" id="structure"></div>
+            <h1>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-layers">
+                <polygon points="12 2 2 7 12 12 22 7 12 2" />
+                <polyline points="2 17 12 22 22 17" />
+                <polyline points="2 12 12 17 22 12" />
+              </svg>
+              Answer the questions!
+            </h1>
+            <p>
+              Practice makes perfect.
+            </p>
+      
+
+
+            {% for question in questions %}
+                <div>
+                    <label for="first_name">{{ question }}</label>
+                    <input type="text" name="response" id="first_name" required />
+                </div>
+            {% endfor %}
+            <div class="nice-form-group">
+                <input type="submit" value="Update"/>
+            </div>
+          
+    
+          
+        </main>
+      </div>
+      
+    
+    </form><br><br>
+
+
 
 {% endblock %}
 </body>

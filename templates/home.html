@@ -1,19 +1,222 @@
 <!DOCTYPE html>
-<html>
-
-<head>
+<html lang="en">
 
 
-</head>
 
 <body>
 {% extends "master.html" %}
 {% block content %}
 
-spaciba
+<div class="super_container">
 
-</body>
+	<!-- Home -->
+
+	<div class="home">
+		<div class="home_background" style="background-image: url(../images/index_background.jpg);"></div>
+		<div class="home_content">
+			<div class="container">
+				<div class="row">
+					<div class="col text-center">
+						<h1 class="home_title">Learn Languages Easily</h1>
+						<div class="home_button trans_200"><a href="#">get started</a></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Language -->
+
+	<div class="language">
+		<div class="container">
+			<div class="row">
+				<div class="col">
+					<div class="language_slider_container">
+						
+						<!-- Language Slider -->
+
+						<div class="owl-carousel owl-theme language_slider">
+
+							<!-- Flag -->
+							<div class="owl-item language_item">
+								<a href="#">
+									<div class="flag"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 33.56 19.58"><defs><style>.cls-1{fill:none;}.cls-2{clip-path:url(#clip-path);}.cls-3{fill:#4d72c0;}.cls-4{fill:#f2dd30;}</style><clipPath id="clip-path"><rect class="cls-1" width="33.56" height="19.58"/></clipPath></defs><title>Ресурс 2</title><g id="Шар_2" data-name="Шар 2"><g id="_4" data-name="4"><g id="UKRAINE"><g class="cls-2"><rect class="cls-3" width="33.56" height="19.58"/><rect class="cls-4" y="9.79" width="33.56" height="9.79"/></g></g></g></g></svg></div>
+									<div class="lang_name">Ukrainian</div>
+								</a>
+							</div>
+
+							<!-- Flag -->
+							<div class="owl-item language_item">
+								<a href="#">
+									<div class="flag"><img src="../images/Japanese.svg" alt=""></div>
+									<div class="lang_name">Japanese</div>
+								</a>
+							</div>
+
+							<!-- Flag -->
+							<div class="owl-item language_item">
+								<a href="#">
+									<div class="flag"><img src="../images/Lithuanian.svg" alt=""></div>
+									<div class="lang_name">Lithuanian</div>
+								</a>
+							</div>
+
+							<!-- Flag -->
+							<div class="owl-item language_item">
+								<a href="#">
+									<div class="flag"><img src="../images/Swedish.svg" alt=""></div>
+									<div class="lang_name">Swedish</div>
+								</a>
+							</div>
+
+							<!-- Flag -->
+							<div class="owl-item language_item">
+								<a href="#">
+									<div class="flag"><img src="../images/English.svg" alt=""></div>
+									<div class="lang_name">English</div>
+								</a>
+							</div>
+
+							<!-- Flag -->
+							<div class="owl-item language_item">
+								<a href="#">
+									<div class="flag"><img src="../images/Italian.svg" alt=""></div>
+									<div class="lang_name">Italian</div>
+								</a>
+							</div>
+
+							<!-- Flag -->
+							<div class="owl-item language_item">
+								<a href="#">
+									<div class="flag"><img src="../images/Chinese.svg" alt=""></div>
+									<div class="lang_name">Chinese</div>
+								</a>
+							</div>
+
+							<!-- Flag -->
+							<div class="owl-item language_item">
+								<a href="#">
+									<div class="flag"><img src="../images/French.svg" alt=""></div>
+									<div class="lang_name">French</div>
+								</a>
+							</div>
+
+							<!-- Flag -->
+							<div class="owl-item language_item">
+								<a href="#">
+									<div class="flag"><img src="../images/German.svg" alt=""></div>
+									<div class="lang_name">German</div>
+								</a>
+							</div>
+
+						</div>
+
+						<div class="lang_nav lang_prev"><i class="fa fa-angle-left" aria-hidden="true"></i></div>
+						<div class="lang_nav lang_next"><i class="fa fa-angle-right" aria-hidden="true"></i></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+<!-- Courses -->
+
+<div class="courses">
+    <div class="container">
+        <div class="row courses_row">
+
+            <!-- Course -->
+            <div class="col-lg-4 course_col">
+                <div class="course">
+                    <div class="course_image"><img src="images/course_4.jpg" alt=""></div>
+                    <div class="course_body">
+                        <div class="course_title"><a href="course.html">Vocabulary</a></div>
+                        <div class="course_info">
+                            <ul>
+                                <li><a href="instructors.html">Sarah Parker</a></li>
+                                <li><a href="#">English</a></li>
+                            </ul>
+                        </div>
+                        <div class="course_text">
+                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce enim nulla.</p>
+                        </div>
+                    </div>
+                    <div class="course_footer d-flex flex-row align-items-center justify-content-start">
+                        <div class="course_students"><i class="fa fa-user" aria-hidden="true"></i><span>10</span></div>
+                        <div class="course_rating ml-auto"><i class="fa fa-star" aria-hidden="true"></i><span>4,5</span></div>
+                        <div class="course_mark course_free trans_200"><a href="#">Free</a></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Course -->
+            <div class="col-lg-4 course_col">
+                <div class="course">
+                    <div class="course_image"><img src="images/course_5.jpg" alt=""></div>
+                    <div class="course_body">
+                        <div class="course_title"><a href="course.html">Vocabulary</a></div>
+                        <div class="course_info">
+                            <ul>
+                                <li><a href="instructors.html">Sarah Parker</a></li>
+                                <li><a href="#">Spanish</a></li>
+                            </ul>
+                        </div>
+                        <div class="course_text">
+                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce enim nulla.</p>
+                        </div>
+                    </div>
+                    <div class="course_footer d-flex flex-row align-items-center justify-content-start">
+                        <div class="course_students"><i class="fa fa-user" aria-hidden="true"></i><span>10</span></div>
+                        <div class="course_rating ml-auto"><i class="fa fa-star" aria-hidden="true"></i><span>4,5</span></div>
+                        <div class="course_mark course_free trans_200"><a href="#">Free</a></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Course -->
+            <div class="col-lg-4 course_col">
+                <div class="course">
+                    <div class="course_image"><img src="images/course_6.jpg" alt=""></div>
+                    <div class="course_body">
+                        <div class="course_title"><a href="course.html">Vocabulary</a></div>
+                        <div class="course_info">
+                            <ul>
+                                <li><a href="instructors.html">Sarah Parker</a></li>
+                                <li><a href="#">English</a></li>
+                            </ul>
+                        </div>
+                        <div class="course_text">
+                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce enim nulla.</p>
+                        </div>
+                    </div>
+                    <div class="course_footer d-flex flex-row align-items-center justify-content-start">
+                        <div class="course_students"><i class="fa fa-user" aria-hidden="true"></i><span>10</span></div>
+                        <div class="course_rating ml-auto"><i class="fa fa-star" aria-hidden="true"></i><span>4,5</span></div>
+                        <div class="course_mark trans_200"><a href="#">$45</a></div>
+                    </div>
+                </div>
+            </div>
+            </div>
+            
+
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <div class="load_more_button"><a href="#">load more</a></div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+
 
 {% endblock %}
 </body>
+
+
+
+
+
 </html>

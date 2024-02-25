@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+{% extends "master.html" %}
+{% block content %}
+
+
+        <h1>Transcribe Audio With Flask 2.0</h1>
+        <p id="status">Connection status will go here</p>
+        <p id="original-text">{{chatgpt_return}}</p>
+        <p id="transcript"></p>
+
+        <button onclick="collectBlueText()">View mistakes !</button>
+
+
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                function removeCharactersUntilLetter(arr) {
+                    let startIndex = 0;
+
+                    for (let i = 0; i < arr.length; i++) {
+                        if (arr[i].match(/[a-zA-Z]/)) {
+                        // Found a letter, break the loop
+                        startIndex = i;
+                        break;
+                        }
+                    }
+
+                    // Remove elements from index 0 until the startIndex
+                    arr.splice(0, startIndex);
+
+                    return arr;
+                    }
+                     
+                const originalTextElement = document.getElementById('original-text');
+                const transcriptElement = document.getElementById('transcript');
+                const socket = new WebSocket('ws://localhost:5555/listen');
+                var originalWords = removeCharactersUntilLetter((originalTextElement.textContent).split(' '));
+                var firstIndex = 0
+                var secondIndex = 0
+
+                function isWord(element) {
+                    // Use a regular expression to check if the element is a word (contains only letters)
+                    return /^[a-zA-ZäöüßñÄÖÜẞÑ]+$/u.test(element);
+                }
+
+
+                function cleanArray(inputArray) {
+                    const cleanedArray = inputArray.map(element => element.replace(/[^\w\säöüßñÄÖÜẞÑ]/g, ''));
+                    return cleanedArray;
+                }
+
+                var originalWords = cleanArray(originalWords);
+
+
+                let currentIndex = 0;  
+
+                socket.onopen = () => {
+                    document.querySelector('#status').textContent = 'Connected';
+                };
+
+                socket.onmessage = (message) => {
+                    const received = message.data;
+
+                    if (received) {
+                        const sanitizedReceived = sanitizeTextCollapse(received);
+                        var secondIndex = asFarAsItWent(sanitizedReceived, originalWords.slice(firstIndex)) + firstIndex;
+
+                        // Change color based on correctness
+
+                        for (let i = firstIndex; i < secondIndex; i++) {
+                        originalWords[i] = `<span style="color: green">${originalWords[i]}</span>`;
+                        }
+
+                        originalWords[secondIndex] = `<span style="color: blue">${originalWords[secondIndex]}</span>`;
+                        firstIndex = secondIndex 
+
+                        updateDisplay();
+                    }
+                };
+
+                const sanitizeTextCollapse = (text) => {
+                    var wanted = text.split(' ');
+                    var text = text.split(' ')
+                    if (wanted.length <= 1) {
+                        // No duplicates to remove
+                        return wanted
+                    }
+
+                    // Initialize a new array with the first element
+                    var wanted = [wanted[0]];
+
+                    // Iterate through the input array to find non-consecutive duplicates
+                    for (let i = 1; i < text.length; i++) {
+                        if (text[i] !== text[i - 1]) {
+                        // If the current element is different from the previous one, add it to the result array
+                            wanted.push(text[i]);
+                        }
+                    }
+
+                    return wanted;
+                };
+
+
+                const asFarAsItWent = (transcribedArray, originalArray) => {
+                    // Use a more advanced comparison method if needed
+                    var transcribedArray = transcribedArray.map(word => word.toLowerCase());
+                    var originalArray = originalArray.map(word => word.toLowerCase());
+                    
+                    const regex = /<span[^>]*>([^<]*)<\/span>/;
+                    const match = originalArray[0].match(regex);
+
+                    // The extracted content is in match[1]
+                    if (match) {
+                    const contentInsideSpan = match[1];
+                    originalArray[0] = contentInsideSpan
+                    } else {
+
+                    }
+
+                    
+                    function findCommonIndex(arr1, arr2) {
+                        const minLength = Math.min(arr1.length, arr2.length);
+
+                        for (let i = 0; i < minLength; i++) {
+                            if (arr1[i] !== arr2[i]) {
+                            return i;
+                            }
+                        }
+
+                        return minLength; // Both arrays are the same up to the minimum length
+                        }
+                    
+                    var nextIndex = findCommonIndex(transcribedArray, originalArray)
+                    
+                    return nextIndex;
+                    
+
+                };
+
+                const updateDisplay = () => {
+                    originalTextElement.innerHTML = originalWords.join(' ');
+                    transcriptElement.innerHTML = originalWords.slice(0, currentIndex).join(' ');
+                    transcriptElement.scrollIntoView({ behavior: 'smooth', block: 'end', inline: 'nearest' });
+                };
+
+
+                navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+                    if (!MediaRecorder.isTypeSupported('audio/webm'))
+                        return alert('Browser not supported');
+
+                    const mediaRecorder = new MediaRecorder(stream, {
+                        mimeType: 'audio/webm',
+                    });
+
+                    mediaRecorder.addEventListener('dataavailable', async (event) => {
+                        if (event.data.size > 0 && socket.readyState == 1) {
+                            socket.send(event.data);
+                        }
+                    });
+
+                    mediaRecorder.start(100);
+                });
+            });
+        </script>
+
+
+        <script>
+    function collectBlueText() {
+      // Get all span elements inside the p tag
+      const spanElements = document.querySelectorAll('#original-text span');
+
+      // Initialize an array to store blue text
+      const blueTextList = [];
+
+      // Iterate through each span element
+      spanElements.forEach(span => {
+        // Get the computed style of the span
+        const computedStyle = getComputedStyle(span);
+
+        // Check if the computed color is blue
+        if (computedStyle.color === 'rgb(0, 0, 255)') {
+          // If it is blue, add the text content to the array
+          blueTextList.push(span.textContent);
+        }
+      });
+
+      // Log or use the collected blue text
+      console.log('Blue Text List:', blueTextList);
+    }
+        </script>
+
+{% endblock %}
+</body>
+</html>

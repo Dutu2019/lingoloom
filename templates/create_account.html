@@ -1,77 +1,215 @@
 <!DOCTYPE html>
 <html>
 
-<head>
-
-
-</head>
-
 <body>
 {% extends "master.html" %}
 {% block content %}
 
-<form action="/action_page" role="form" method="post" id="reused_form" enctype="multipart/form-data">
-
-
-    <label for="full_name"><b>Full name</b></label>
-    <input type="text" placeholder="Enter first and last name" name="full_name" id="full_name" required><br><br>
-
-    <label for="level"><b>German proficiency level</b></label><br>
-     <input type="radio" id="just_started" name="proficiency" value="just_started">Just started</input><br>
-
-     <input type="radio" id="early_beginner" name="proficiency" value="early_beginner">I know a few words</input><br>
-
-     <input type="radio" id="beginner" name="proficiency" value="beginner">I can understand a little</input><br>
-
-    <input type="radio" id="early_intermediate" name="proficiency" value="early_intermediate">I can also write a little</input><br>
-
-    <input type="radio" id="intermediate" name="proficiency" value="intermediate">I can speak a little</input><br>
-
-    <input type="radio" id="high_intermediate" name="proficiency" value="high_intermediate">I could survive in Germany</input><br><br>
-    
-    <label for="age"><b>Age</b></label><br>
-    <input type="text" placeholder="" name="age" id="age" required><br><br>
-
-    <label for="email"><b>Email</b></label><br>
-    <input type="email" placeholder="Enter email" name="email" id="email" required><br><br>
-
-    <label for="password"><b>Password</b></label><br>
-    <input type="password" placeholder="Enter password" name="password" id="password" required><br><br>
-
-    <label for="language">Choose a language:</label>
-
-    <select name="language" id="language">
-    <option value="cs">Czech</option>
-    <option value="da">Danish</option>
-    <option value="nl">Dutch</option>
-    <option value="en">English</option>
-    <option value="nl-BE">Flemish</option>
-    <option value="fr">French</option>
-    <option value="de">German</option>
-    <option value="el">Greek</option>
-    <option value="hi-Latn">hindi</option>
-    <option value="id">Indonesian</option>
-    <option value="it">Italian</option>
-    <option value="ko">Korean</option>
-    <option value="no">Norwegian</option>
-    <option value="pl">Polish</option>
-    <option value="pt">Portuguese</option>
-    <option value="ru">Russian</option>
-    <option value="es">Spanish</option>
-    <option value="sv">Swedish</option>
-    <option value="tr">Turkish</option>
-    <option value="uk">Ukrainian</option>
-
-    </select><br></br>
-
-
-    <button type="submit" class="registerbtn">Register</button>
-
-
-
-</form><br><br>
 
 <a href="/login">Have an account? Sign in!</a>
+
+<form action="/action_page" role="form" method="post" id="reused_form" enctype="multipart/form-data">
+<div class="demo-page">
+    <style scoped>
+        @import "../static/styles/create_account.css";
+    </style>
+    <div class="demo-page-navigation">
+      <nav>
+        <ul>
+          <li>
+            <a href="#validation">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-alert-triangle">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                <line x1="12" y1="9" x2="12" y2="13" />
+                <line x1="12" y1="17" x2="12.01" y2="17" />
+              </svg>
+              Contact information</a>
+          </li>
+
+          <li>
+            <a href="#checkbox-and-radio">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-check-square">
+                <polyline points="9 11 12 14 22 4" />
+                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+              </svg>
+              Language selection</a>
+          </li>
+
+          <li>
+            <a href="#other">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-server">
+                <rect x="2" y="2" width="20" height="8" rx="2" ry="2" />
+                <rect x="2" y="14" width="20" height="8" rx="2" ry="2" />
+                <line x1="6" y1="6" x2="6.01" y2="6" />
+                <line x1="6" y1="18" x2="6.01" y2="18" />
+              </svg>
+              Additional personal information</a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+    
+    <main class="demo-page-content">
+      <section>
+        <div class="href-target" id="structure"></div>
+        <h1>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-layers">
+            <polygon points="12 2 2 7 12 12 22 7 12 2" />
+            <polyline points="2 17 12 22 22 17" />
+            <polyline points="2 12 12 17 22 12" />
+          </svg>
+          Identification
+        </h1>
+        <p>
+          Let's start by getting to know you better!
+        </p>
+  
+        <div class="nice-form-group">
+          <label for="first_name">First name</label>
+          <input type="text" placeholder="First name" name="first_name" id="first_name" required />
+        </div>
+  
+        <div class="nice-form-group">
+          <label for="last_name">Last name</label>
+          <small>(And add your middle name if you have one!)</small>
+          <input type="text" placeholder="Last name" name="last_name" id="last_name" required/>
+        </div>
+  
+        <div class="nice-form-group">
+          <label for="prefered_name">Any prefered name?</label>
+          <input type="text" placeholder="Prefered name" name="prefered_name" id="prefered_name"/>
+          <small>We'll be using it!</small>
+        </div>
+
+      </section>
+
+
+
+
+      <section>
+        <div class="href-target" id="validation"></div>
+        <h1>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-alert-triangle">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+            <line x1="12" y1="9" x2="12" y2="13" />
+            <line x1="12" y1="17" x2="12.01" y2="17" />
+          </svg>
+          Personal details
+        </h1>
+        <p>
+            We really want to help you perfect your language skill tree!
+            <a href="https://feathericons.com/" target="_blank">feathericons</a>.
+          </p>
+  
+        <div class="nice-form-group">
+          <label for="email">Email</label>
+          <input type="email" placeholder="Your email" name="email" id="email" value="Please don't fuck it up" required />
+        </div>
+  
+        <div class="nice-form-group">
+            <label for="phone_number">Phone number</label>
+            <input type="tel" placeholder="Your phone number" name="phone_number" id="phone_number" class="icon-left" required />
+          </div>
+
+        <div class="nice-form-group">
+            <label for="password">Password</label>
+            <input type="password" placeholder="Your password" name="password" id="password" class="icon-left" required/>
+        </div>
+      </section>
+
+      <section>
+        <div class="href-target" id="checkbox-and-radio"></div>
+        <h1>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-check-square">
+            <polyline points="9 11 12 14 22 4" />
+            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+          </svg>
+          Assessment
+        </h1>
+        <p>
+We want to know what language you are focused on learning! 
+You can learn <code>any</code> language on our platform, but which ones are you most interested in?
+        </p>
+  
+  
+        <fieldset class="nice-form-group">
+            <div class="nice-form-group">
+                <label for="language">Select the main language you want to learn</label>
+                <select name="language" id="language">
+                  <option>Please select a main language: </option>
+                  <option value="cs">Czech</option>
+                  <option value="da">Danish</option>
+                  <option value="nl">Dutch</option>
+                  <option value="en">English</option>
+                  <option value="nl-BE">Flemish</option>
+                  <option value="fr">French</option>
+                  <option value="de">German</option>
+                  <option value="el">Greek</option>
+                  <option value="hi-Latn">hindi</option>
+                  <option value="id">Indonesian</option>
+                  <option value="it">Italian</option>
+                  <option value="ko">Korean</option>
+                  <option value="no">Norwegian</option>
+                  <option value="pl">Polish</option>
+                  <option value="pt">Portuguese</option>
+                  <option value="ru">Russian</option>
+                  <option value="es">Spanish</option>
+                  <option value="sv">Swedish</option>
+                  <option value="tr">Turkish</option>
+                  <option value="uk">Ukrainian</option>
+                </select>
+              </div>
+
+              <div class="nice-form-group">
+                <label for="level">How good are you? Don't worry, there is always room for improvement!</label>
+                <select name="level" id="level">
+                  <option>Please select your current level: </option>
+                  <option value="1">I'm starting my journey with LingoLoom!</option>
+                  <option value="2">I know a few words already. Probably could survive in the foreign country.</option>
+                  <option value="3">I can understand a bit! Can you believe that?</option>
+                  <option value="4">I can write too!</option>
+                  <option value="5">I can speak, write and understand rather easily!</option>
+                </select>
+              </div>
+
+
+
+        </fieldset>
+      </section>
+  
+    
+      <section>
+        <div class="href-target" id="other"></div>
+        <h1>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-server">
+            <rect x="2" y="2" width="20" height="8" rx="2" ry="2" />
+            <rect x="2" y="14" width="20" height="8" rx="2" ry="2" />
+            <line x1="6" y1="6" x2="6.01" y2="6" />
+            <line x1="6" y1="18" x2="6.01" y2="18" />
+          </svg>
+          Additional information
+        </h1>
+  
+        <div class="nice-form-group">
+          <label for="message">Anything else you might want us to know?</label>
+          <textarea id="message" rows="5" placeholder="Your message"></textarea>
+        </div>
+  
+        <div class="nice-form-group">
+          <label for="age">Age - might as well put 0 instead of some bs if you want to fake your age, right?</label>
+          <input type="range" value="50" min="0" max="120" name="age" id="age" oninput="this.nextElementSibling.value = this.value" />
+          <output>50</output>
+        </div>
+      </section>
+      
+      
+
+      
+    </main>
+  </div>
+
+  <input type="submit" value="Submit">
+</form><br><br>
 
 {% endblock %}
 </body>

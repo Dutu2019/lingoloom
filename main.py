@@ -25,15 +25,14 @@ client = OpenAI(api_key=api_key)
 
 app = Flask('aioflask')
 dg_client = Deepgram("cf1ff9dc4a972c9b4b4d011617d780f31af60c4b")
-app.secret_key = "~!@#$%^&*()_+QWERASDFGHJK"
-DATA_BASE_FILE_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'accounts_info2.sqlite')
+app.secret_key = "~!@#$%^&*()_+QWERASD  GHJK"
+DATA_BASE_FILE_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'accounts_info3.sqlite')
 
 def check_to_create_table():
     connection = sqlite3.connect(DATA_BASE_FILE_PATH)
     cur = connection.cursor()
     cur.execute(
-        'CREATE TABLE IF NOT EXISTS Accounts ( id INTEGER PRIMARY KEY, full_name TEXT NOT NULL, level TEXT NOT NULL, age TEXT NOT NULL, email TEXT NOT NULL, password TEXT NOT NULL, language TEXT NOT NULL, previous_seven_subjects TEXT)')
-    connection.commit()
+        'CREATE TABLE IF NOT EXISTS Accounts ( id INTEGER PRIMARY KEY, first_name TEXT NOT NULL, last_name TEXT NOT NULL, prefered_name TEXT, email TEXT NOT NULL, phone_number TEXT, password TEXT NOT NULL, language TEXT NOT NULL, level TEXT NOT NULL, age INTEGER NOT NULL)')
     connection.close()
 check_to_create_table()
 
@@ -611,6 +610,7 @@ question_pool = {
     ]
 }
 
+#view other exercises
 @app.route('/landing', methods=["POST", "GET"])
 def landing():
         #requested_search = request.values.get("search_input")
@@ -641,7 +641,7 @@ def search_results():
                            records=records)
 '''
 
-
+#view the specific exercise
 @app.route('/viewEx', methods=["POST", "GET"])
 def viewEx():
     viewId = request.values.get('viewId')
@@ -659,6 +659,7 @@ def viewEx():
     
     return render_template('viewEx.html', email=email, text=text, viewId=viewId)
 
+#practice
 @app.route('/daily_exercise', methods=["POST", "GET"])
 def daily_exercise():
     random_topic = random.choice(list(question_pool.keys()))
@@ -670,10 +671,6 @@ def daily_exercise():
         return redirect(url_for('index'))
     
     
-    
-    
-    
-    
     return render_template('daily_exercise.html', questions=topic_questions[:5])
 
 @app.route('/account', methods=["POST", "GET"])
@@ -683,32 +680,44 @@ def account():
     cur.execute("SELECT * FROM Accounts WHERE email=?", (session["logged_in_user"],))
     one_user = cur.fetchone()
         
-    full_name = one_user[1]
-    level = one_user[2]
-    age = one_user[3]
-    password = one_user[5]
-        
+    first_name = one_user[1]
+    last_name = one_user[2]
+    prefered_name = one_user[3]
+    email = one_user[4]
+    phone_number = one_user[5]
+    password = one_user[6]
+    language = one_user[7]
+    level = one_user[8]
+    age = one_user[9]
+
     connection.close()
         
-    return render_template("account.html", full_name=full_name, level=level, age=age, password=password)
+    return render_template("account.html", first_name=first_name, last_name=last_name, 
+                           prefered_name=prefered_name, email=email, phone_number=phone_number, 
+                           password=password, language = language, 
+                           level=level,
+                           age=age)
     
 @app.route('/account_update', methods=["POST"])
 def account_update():
-    new_full_name = request.values.get('full_name')
-    new_level = request.form["proficiency"]
-    new_age = request.values.get('age')
-    new_password = request.values.get('password')
-    email = session["logged_in_user"]
+    email = request.values.get('email')
+    phone_number = request.values.get('phone_number')
+    password = request.values.get('password')
+    
+    language = request.values.get('language')
+    level = request.values.get('level')
+    
+    age = request.values.get('age')
     
     connection = sqlite3.connect(DATA_BASE_FILE_PATH)
     cur = connection.cursor()
     cur.execute(
-    "UPDATE Accounts SET full_name=?, level=?, age=?, password=? WHERE email=?",
-    (new_full_name, new_level, new_age, new_password, email),)
-
+        "UPDATE Accounts SET phone_number=?, password=?, language=?, level=?, age=? WHERE email=?",
+        (phone_number, password, language, level, age, email),)
     connection.commit()
     connection.close()
 
+    
     return render_template('successful_account_update.html')
     
 @app.route('/')
@@ -752,20 +761,24 @@ def create_account():
 
 @app.route('/action_page', methods=["POST"])
 def action_page():
-    full_name = request.values.get('full_name')
-    level = request.form["proficiency"]
-    age = request.values.get('age')
+    first_name = request.values.get('first_name')
+    last_name = request.values.get('last_name')
+    prefered_name = request.values.get('prefered_name')
+     
     email = request.values.get('email')
+    phone_number = request.values.get('phone_number')
     password = request.values.get('password')
+    
     language = request.values.get('language')
-
-    easter_egg = 'easter_egg'
+    level = request.values.get('level')
+    
+    age = request.values.get('age')
     
     connection = sqlite3.connect(DATA_BASE_FILE_PATH)
     cur = connection.cursor()
     cur.execute(
-        "INSERT INTO Accounts (full_name, level, age, email, password, language, previous_seven_subjects) VALUES (?, ?, ?, ?, ?, ?, ?)",
-        (full_name, level, age, email, password, language, easter_egg))
+        "INSERT INTO Accounts (first_name, last_name, prefered_name, email, phone_number, password, language, level, age) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        (first_name, last_name, prefered_name, email, phone_number, password, language, level, age))
     connection.commit()
     connection.close()
 

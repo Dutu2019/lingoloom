@@ -1,20 +1,20 @@
 <!DOCTYPE html>
 <html>
 
-<head>
 
-</head>
 
 
 
 <body>
 {% extends "master.html" %}
-
 {% block content %}
+    
+
     {% for item in records %}
         <a style="color: antiquewhite !important;" href="/viewEx?viewId={{ item[3] }}">Visit details!</a>
     {% endfor %}
 
-{% endblock %}    
+{% endblock %}
+
 </body>
 </html>

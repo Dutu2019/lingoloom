@@ -1,20 +1,19 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title>Live Transcription</title>
-</head>
+
 <body>
-    {% extends "master.html" %}
-    {% block content %}
+{% extends "master.html" %}
+{% block content %}
+
+
         <h1>Transcribe Audio With Flask 2.0</h1>
         <p id="status">Connection status will go here</p>
         <p id="original-text">{{chatgpt_return}}</p>
         <p id="transcript"></p>
-        <ul>
-            {% for response in user_responses %}
-                <li>{{ response }}</li>
-            {% endfor %}
-        </ul>
+
+        <button onclick="collectBlueText()">View mistakes !</button>
+
+
 
         <script>
             document.addEventListener('DOMContentLoaded', () => {
@@ -167,6 +166,114 @@
             });
         </script>
 
-    {% endblock %}
+
+        <script>
+    function collectBlueText() {
+      // Get all span elements inside the p tag
+      const spanElements = document.querySelectorAll('#original-text span');
+
+      // Initialize an array to store blue text
+      const blueTextList = [];
+
+      // Iterate through each span element
+      spanElements.forEach(span => {
+        // Get the computed style of the span
+        const computedStyle = getComputedStyle(span);
+
+        // Check if the computed color is blue
+        if (computedStyle.color === 'rgb(0, 0, 255)') {
+          // If it is blue, add the text content to the array
+          blueTextList.push(span.textContent);
+        }
+      });
+    }
+
+// Function to create the form structure
+function createFormElement(item) {
+    const form = document.createElement('form');
+    
+    const label = document.createElement('label');
+    label.setAttribute('for', 'txt');
+    label.textContent = `Enter text for ${item}`;
+
+    const input = document.createElement('input');
+    input.setAttribute('id', 'txt');
+    input.setAttribute('type', 'text');
+    input.classList.add('txt');
+
+    const rateLabel = document.createElement('label');
+    rateLabel.setAttribute('for', 'rate');
+    rateLabel.textContent = 'Rate';
+
+    const rateInput = document.createElement('input');
+    rateInput.setAttribute('type', 'range');
+    rateInput.setAttribute('min', '0.5');
+    rateInput.setAttribute('max', '2');
+    rateInput.setAttribute('value', '1');
+    rateInput.setAttribute('step', '0.1');
+    rateInput.setAttribute('id', 'rate');
+
+    const rateValue = document.createElement('div');
+    rateValue.classList.add('rate-value');
+    rateValue.textContent = '1';
+
+    const rateDiv = document.createElement('div');
+    rateDiv.appendChild(rateLabel);
+    rateDiv.appendChild(rateInput);
+    rateDiv.appendChild(rateValue);
+    rateDiv.innerHTML += '<div class="clearfix"></div>';
+
+    const pitchLabel = document.createElement('label');
+    pitchLabel.setAttribute('for', 'pitch');
+    pitchLabel.textContent = 'Pitch';
+
+    const pitchInput = document.createElement('input');
+    pitchInput.setAttribute('type', 'range');
+    pitchInput.setAttribute('min', '0');
+    pitchInput.setAttribute('max', '2');
+    pitchInput.setAttribute('value', '1');
+    pitchInput.setAttribute('step', '0.1');
+    pitchInput.setAttribute('id', 'pitch');
+
+    const pitchValue = document.createElement('div');
+    pitchValue.classList.add('pitch-value');
+    pitchValue.textContent = '1';
+
+    const pitchDiv = document.createElement('div');
+    pitchDiv.appendChild(pitchLabel);
+    pitchDiv.appendChild(pitchInput);
+    pitchDiv.appendChild(pitchValue);
+    pitchDiv.innerHTML += '<div class="clearfix"></div>';
+
+    const select = document.createElement('select');
+
+    const controlsDiv = document.createElement('div');
+    controlsDiv.classList.add('controls');
+
+    const button = document.createElement('button');
+    button.setAttribute('id', 'play');
+    button.setAttribute('type', 'submit');
+    button.textContent = 'Play';
+
+    controlsDiv.appendChild(button);
+
+    form.appendChild(label);
+    form.appendChild(input);
+    form.appendChild(rateDiv);
+    form.appendChild(pitchDiv);
+    form.appendChild(select);
+    form.appendChild(controlsDiv);
+
+    document.body.appendChild(form);
+}
+
+// Loop through the list and create forms
+blueTextList.forEach(item => {
+    createFormElement(item);
+});
+
+        </script>
+
+{% endblock %}
 </body>
 </html>
