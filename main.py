@@ -4,6 +4,8 @@ import sqlite3
 import os
 import uuid
 import random
+import ssl
+import string
 
 from deepgram import Deepgram
 from dotenv import load_dotenv
@@ -18,7 +20,7 @@ from openai import OpenAI
 import pandas as pandas
 import time
 
-api_key = "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"
+api_key = "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"
 client = OpenAI(api_key=api_key)
 
 app = Flask('aioflask')
@@ -30,10 +32,20 @@ def check_to_create_table():
     connection = sqlite3.connect(DATA_BASE_FILE_PATH)
     cur = connection.cursor()
     cur.execute(
-        'CREATE TABLE IF NOT EXISTS Accounts ( id INTEGER PRIMARY KEY, full_name TEXT NOT NULL, level TEXT NOT NULL, age TEXT NOT NULL, email TEXT NOT NULL, password TEXT NOT NULL, previous_seven_subjects TEXT)')
+        'CREATE TABLE IF NOT EXISTS Accounts ( id INTEGER PRIMARY KEY, full_name TEXT NOT NULL, level TEXT NOT NULL, age TEXT NOT NULL, email TEXT NOT NULL, password TEXT NOT NULL, language TEXT NOT NULL, previous_seven_subjects TEXT)')
     connection.commit()
     connection.close()
 check_to_create_table()
+
+def check_to_create_textTable():
+    connection = sqlite3.connect(DATA_BASE_FILE_PATH)
+    cur = connection.cursor()
+    cur.execute(
+        'CREATE TABLE IF NOT EXISTS Texts ( id INTEGER PRIMARY KEY, email TEXT NOT NULL, text TEXT NOT NULL, viewId TEXT NOT NULL)')
+    connection.commit()
+    connection.close()
+check_to_create_textTable()
+
 
 #voice recognition
 async def process_audio(fast_socket: web.WebSocketResponse):
@@ -68,8 +80,19 @@ async def socket(request):
 
 @app.route('/temp_exercise',  methods=["POST", "GET"])
 def index():
+    def generate_unique_code():
+        # Define the length of the code
+        code_length = 6
+
+        # Generate a random string of letters with the specified length
+        unique_code = ''.join(random.choice(string.ascii_letters) for _ in range(code_length))
+
+        return unique_code
+
+    
     user_responses = session.get('user_responses', [])
-    swivel = 1
+    
+    swivel = 0
     
     if swivel == 0:
         def get_completion(prompt, model="gpt-3.5-turbo"):
@@ -86,6 +109,19 @@ def index():
         prompt = f"Using the responses in brackets, generate a short narrative text in German: {formatted_responses}"
         
         chatgpt_return = get_completion(prompt)
+        email = session["logged_in_user"]
+        viewId = generate_unique_code()
+        
+        connection = sqlite3.connect(DATA_BASE_FILE_PATH)
+        cur = connection.cursor()
+        cur.execute(
+            "INSERT INTO Texts (email, text, viewId) VALUES (?, ?, ?)",
+            (email, chatgpt_return, viewId))
+        connection.commit()
+        connection.close()
+
+        
+        
     
     else:
         chatgpt_return = '''
@@ -575,6 +611,54 @@ question_pool = {
     ]
 }
 
+@app.route('/landing', methods=["POST", "GET"])
+def landing():
+        #requested_search = request.values.get("search_input")
+
+    connection = sqlite3.connect(DATA_BASE_FILE_PATH)
+    cur = connection.cursor()
+    cur.execute("SELECT * FROM Texts")
+    records = cur.fetchall()
+    connection.commit()  
+    connection.close()
+    
+    return render_template('landing.html',
+                           records=records)
+
+'''
+@app.route('/search_results', methods=["POST"])
+def search_results():
+    #requested_search = request.values.get("search_input")
+
+    connection = sqlite3.connect(DATA_BASE_FILE_PATH)
+    cur = connection.cursor()
+    cur.execute("SELECT * FROM Texts")
+    records = cur.fetchall()
+    connection.commit()
+    connection.close()
+    
+    return render_template('landing.html',
+                           records=records)
+'''
+
+
+@app.route('/viewEx', methods=["POST", "GET"])
+def viewEx():
+    viewId = request.values.get('viewId')
+    connection = sqlite3.connect(DATA_BASE_FILE_PATH)
+    cur = connection.cursor()
+    cur.execute("SELECT * FROM Texts WHERE viewId=?", (viewId,))
+    one_user = cur.fetchone()
+    
+    email = one_user[1]
+    text = one_user[2]
+    viewId = one_user[3]
+    
+    connection.close()
+
+    
+    return render_template('viewEx.html', email=email, text=text, viewId=viewId)
+
 @app.route('/daily_exercise', methods=["POST", "GET"])
 def daily_exercise():
     random_topic = random.choice(list(question_pool.keys()))
@@ -584,6 +668,11 @@ def daily_exercise():
         user_responses = request.form.getlist('response')
         session['user_responses'] = user_responses
         return redirect(url_for('index'))
+    
+    
+    
+    
+    
     
     return render_template('daily_exercise.html', questions=topic_questions[:5])
 
@@ -668,14 +757,15 @@ def action_page():
     age = request.values.get('age')
     email = request.values.get('email')
     password = request.values.get('password')
+    language = request.values.get('language')
 
     easter_egg = 'easter_egg'
     
     connection = sqlite3.connect(DATA_BASE_FILE_PATH)
     cur = connection.cursor()
     cur.execute(
-        "INSERT INTO Accounts (full_name, level, age, email, password, previous_seven_subjects) VALUES (?, ?, ?, ?, ?, ?)",
-        (full_name, level, age, email, password, easter_egg))
+        "INSERT INTO Accounts (full_name, level, age, email, password, language, previous_seven_subjects) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        (full_name, level, age, email, password, language, easter_egg))
     connection.commit()
     connection.close()
 
@@ -693,4 +783,6 @@ if __name__ == "__main__":
     wsgi = WSGIHandler(app)
     aio_app.router.add_route('*', '/{path_info: *}', wsgi.handle_request)
     aio_app.router.add_route('GET', '/listen', socket)
-    web.run_app(aio_app, port=5555, host='192.168.0.151')
+    
+    
+    web.run_app(aio_app, port=5555, host='localhost')

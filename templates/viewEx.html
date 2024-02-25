@@ -8,13 +8,9 @@
     {% block content %}
         <h1>Transcribe Audio With Flask 2.0</h1>
         <p id="status">Connection status will go here</p>
-        <p id="original-text">{{chatgpt_return}}</p>
+        <p id="from-who">Exercise by : {{email}}</p>
+        <p id="original-text">{{text}}</p>
         <p id="transcript"></p>
-        <ul>
-            {% for response in user_responses %}
-                <li>{{ response }}</li>
-            {% endfor %}
-        </ul>
 
         <script>
             document.addEventListener('DOMContentLoaded', () => {
