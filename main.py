@@ -47,7 +47,7 @@ check_to_create_textTable()
 
 
 #voice recognition
-async def process_audio(fast_socket: web.WebSocketResponse):
+async def process_audio(fast_socket: web.WebSocketResponse, language):
     async def get_transcript(data: Dict) -> None:
         if 'channel' in data:
             transcript = data['channel']['alternatives'][0]['transcript']
@@ -55,12 +55,12 @@ async def process_audio(fast_socket: web.WebSocketResponse):
             if transcript:
                 await fast_socket.send_str(transcript)
 
-    deepgram_socket = await connect_to_deepgram(get_transcript)
+    deepgram_socket = await connect_to_deepgram(get_transcript, language)
 
     return deepgram_socket
-async def connect_to_deepgram(transcript_received_handler: Callable[[Dict], None]) -> str:
+async def connect_to_deepgram(transcript_received_handler: Callable[[Dict], None], language) -> str:
     try:
-        socket = await dg_client.transcription.live({'punctuate': False, 'interim_results': False, 'language': 'de', 'model': 'nova-2', 'timeout' : 300})
+        socket = await dg_client.transcription.live({'punctuate': False, 'interim_results': False, 'language': language, 'model': 'nova-2', 'timeout' : 300})
         socket.registerHandler(socket.event.CLOSE, lambda c: print(f'Connection closed with code {c}.'))
         socket.registerHandler(socket.event.TRANSCRIPT_RECEIVED, transcript_received_handler)
 
@@ -71,7 +71,9 @@ async def socket(request):
     ws = web.WebSocketResponse()
     await ws.prepare(request) 
 
-    deepgram_socket = await process_audio(ws)
+    language = request.cookies["language"]
+
+    deepgram_socket = await process_audio(ws, language)
 
     while True:
         data = await ws.receive_bytes()
