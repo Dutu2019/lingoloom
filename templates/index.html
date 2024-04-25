@@ -17,6 +17,9 @@
 
         <script>
             document.addEventListener('DOMContentLoaded', () => {
+                language = "{{ language }}"
+                document.cookie = "language=" + language
+                    
                 function removeCharactersUntilLetter(arr) {
                     let startIndex = 0;
 
