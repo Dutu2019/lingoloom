@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Deepgram Test</title>
+    <script
+      src="https://cdn.socket.io/4.5.3/socket.io.min.js"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body>
+    <button id="button" onclick="toggle_button()">Start recording</button>
+
+    <script async defer>
+      const socket = io("ws://localhost:5555");
+      const button = document.getElementById("button");
+
+      let mediaRecorder;
+      function toggle_button() {
+        if (button.innerText === "Start recording") {
+          socket.emit("start");
+          navigator.mediaDevices
+            .getUserMedia({ audio: true })
+            .then((stream) => {
+              if (!MediaRecorder.isTypeSupported("audio/webm"))
+                return alert("Browser not supported");
+
+              mediaRecorder = new MediaRecorder(stream, {
+                audioBitsPerSecond: 16000,
+              });
+
+              mediaRecorder.addEventListener("dataavailable", (event) => {
+                if (event.data.size > 0) {
+                  console.log(event);
+                  socket.emit("data", event.data);
+                }
+              });
+
+              mediaRecorder.start(500);
+            });
+          button.innerText = "Stop recording";
+        } else {
+          mediaRecorder.stop();
+          socket.emit("stop");
+          button.innerText = "Start recording";
+        }
+      }
+    </script>
+  </body>
+</html>

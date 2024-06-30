@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, session, redirect, url_for
+from flask import Flask, render_template, request, session, redirect, url_for, make_response
 from flask_socketio import SocketIO
 from werkzeug.utils import secure_filename
 import sqlite3
@@ -8,26 +8,32 @@ import random
 import ssl
 import string
 from dotenv import load_dotenv
-load_dotenv()
+import logging
+import websockets
 
 import os
-import asyncio
 from aiohttp import web
-from aiohttp_wsgi import WSGIHandler
 
 from typing import Dict, Callable
 
 # from openai import OpenAI
-from deepgram import Deepgram
+from deepgram import DeepgramClient, DeepgramClientOptions, LiveTranscriptionEvents, LiveOptions, Microphone
 
 import pandas as pandas
 import time
+load_dotenv()
 
-api_key = "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"
-# client = OpenAI(api_key=api_key)
+OpenAI_api_key = "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"
+# client = OpenAI(api_key=OpenAI_api_key)
+
+# Deepgram config
+config = DeepgramClientOptions(verbose=logging.WARNING, options={"keepalive": "true"})
+dg_client = DeepgramClient(os.getenv("DEEPGRAM_API_KEY"), config)
+dg_connection = dg_client.listen.live.v("1")
+
 
 app = Flask('aioflask')
-dg_client = Deepgram(os.getenv("DEEPGRAM_API_KEY"))
+socketio = SocketIO(app, cors_allowed_origins=["http://localhost:5555/", "http://localhost:5555", "http://127.0.0.1:5555/", "http://127.0.0.1:5555"])
 app.secret_key = "~!@#$%^&*()_+QWERASD  GHJK"
 DATA_BASE_FILE_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'accounts_info3.sqlite')
 
@@ -50,40 +56,45 @@ check_to_create_textTable()
 
 
 #voice recognition
-async def process_audio(fast_socket: web.WebSocketResponse, language):
-    async def get_transcript(data: Dict) -> None:
-        if 'channel' in data:
-            transcript = data['channel']['alternatives'][0]['transcript']
-        
-            if transcript:
-                await fast_socket.send_str(transcript)
 
-    deepgram_socket = await connect_to_deepgram(get_transcript, language)
-    deepgram_socket = None
-    return deepgram_socket
+def on_message(self, result, **kwargs):
+    sentence = result.channel.alternatives[0].transcript
+    if len(sentence) == 0:
+        return
+    else:
+        if result.is_final:
+            print(f"Sentence: {sentence}")
+            socketio.emit("translated", {"sentence": sentence})
+        else:
+            # These are useful if you need real time captioning of what is being spoken
+            print(f"Interim Results: {sentence}")
+dg_connection.on(LiveTranscriptionEvents.Transcript, on_message)
 
-async def connect_to_deepgram(transcript_received_handler: Callable[[Dict], None], language) -> str:
-    try:
-        socket = await dg_client.transcription.live({'punctuate': False, 'interim_results': False, 'language': language, 'model': 'nova-2', 'timeout' : 300})
-        socket.registerHandler(socket.event.CLOSE, lambda c: print(f'Connection closed with code {c}.'))
-        socket.registerHandler(socket.event.TRANSCRIPT_RECEIVED, transcript_received_handler)
+def on_error(self, error, **kwargs):
+    print(f"\n\n{error}\n\n")
+dg_connection.on(LiveTranscriptionEvents.Error, on_error)
 
-        return socket
-    except Exception as e:
-        raise Exception(f'Could not open socket: {e}')
+@socketio.on("language")
+def startDeepgram(language):
+    options = LiveOptions(model="nova-2", 
+                          language=language, 
+                          smart_format=True,
+                          channels=1, 
+                          sample_rate=16000,
+                          punctuate=False,
+                          interim_results=True)
+    print("starting deepgram")
+    dg_connection.start(options)
 
-async def socket(request: web.Request):
-    ws = web.WebSocketResponse()
-    await ws.prepare(request) 
+@socketio.on('data')
+def socket(voice):
+    dg_connection.send(voice)
 
-    language = request.cookies["language"]
-    print(language)
 
-    deepgram_socket = await process_audio(ws, language)
+@socketio.on("disconnect")
+def disconnect():
+    dg_connection.finish()
 
-    while True:
-        data = await ws.receive_bytes()
-        # deepgram_socket.send(data)
 
 @app.route('/temp_exercise',  methods=["POST", "GET"])
 def index():
@@ -99,7 +110,7 @@ def index():
     
     user_responses = session.get('user_responses', [])
     
-    swivel = 0
+    swivel = 1
     
     if swivel == 0:
         def get_completion(prompt, model="gpt-3.5-turbo"):
@@ -115,25 +126,29 @@ def index():
         formatted_responses = "[" + ", ".join(user_responses) + "]"
         prompt = f"Using the responses in brackets, generate a short narrative text in German: {formatted_responses}"
         
-        chatgpt_return = get_completion(prompt)
         email = session["logged_in_user"]
         viewId = generate_unique_code()
         
-        connection = sqlite3.connect(DATA_BASE_FILE_PATH)
-        cur = connection.cursor()
-        cur.execute(
-            "INSERT INTO Texts (email, text, viewId) VALUES (?, ?, ?)",
-            (email, chatgpt_return, viewId))
-        connection.commit()
-        connection.close()
+        # chatgpt_return = get_completion(prompt)
+
+        # connection = sqlite3.connect(DATA_BASE_FILE_PATH)
+        # cur = connection.cursor()
+        # cur.execute(
+        #     "INSERT INTO Texts (email, text, viewId) VALUES (?, ?, ?)",
+        #     (email, chatgpt_return, viewId))
+        # connection.commit()
+        # connection.close()
 
         
         
     
     else:
-        chatgpt_return = '''
-        Hallo! Mein Name ist Anna. Ich komme aus Deutschland. Ich arbeite als Lehrerin und liebe es, mit Kindern zu arbeiten. In meiner Freizeit lese ich gerne Bücher und mache lange Spaziergänge im Park. Das Wetter hier ist heute schön. Ich hoffe, du hast auch einen schönen Tag!
-        '''
+        # chatgpt_return = '''
+        # Hallo! Mein Name ist Anna. Ich komme aus Deutschland. Ich arbeite als Lehrerin und liebe es, mit Kindern zu arbeiten. In meiner Freizeit lese ich gerne Bücher und mache lange Spaziergänge im Park. Das Wetter hier ist heute schön. Ich hoffe, du hast auch einen schönen Tag!
+        # '''
+        chatgpt_return = """
+Hola! Me llamo Juan y me gustan las ninas pequenas. Yo soy un estudiante en Canada.
+        """
 
     
     return render_template('index.html', chatgpt_return=chatgpt_return, user_responses=user_responses)
@@ -673,13 +688,16 @@ def daily_exercise():
     random_topic = random.choice(list(question_pool.keys()))
     topic_questions = question_pool[random_topic]
     
+    
+
     if request.method == 'POST':
         user_responses = request.form.getlist('response')
         session['user_responses'] = user_responses
         return redirect(url_for('index'))
     
-    
-    return render_template('daily_exercise.html', questions=topic_questions[:5])
+    res = make_response(render_template('daily_exercise.html', questions=topic_questions[:5]))
+    res.set_cookie("language", session["language"])
+    return res
 
 @app.route('/account', methods=["POST", "GET"])
 def account():    
@@ -725,7 +743,7 @@ def account_update():
     connection.commit()
     connection.close()
 
-    
+    session["language"] = language
     return render_template('successful_account_update.html')
     
 @app.route('/')
@@ -733,7 +751,7 @@ def home():
     return render_template('home.html')
 
 @app.route("/login", methods=["POST", "GET"])
-@app.route("/", methods=["POST", "GET"])
+# @app.route("/", methods=["POST", "GET"])
 def login():
     if request.method == 'GET':
         return render_template("login.html", username="", error_message="")
@@ -744,14 +762,14 @@ def login():
     cur = connection.cursor()
     cur.execute("SELECT * FROM Accounts WHERE email=? and password=?", (email, password))
     one_user = cur.fetchone()
+    connection.close()
 
     if one_user is not None:
         # Put a new value into session
         session["logged_in_user"] = email
-        connection.close()
+        session["language"] = one_user[7]
         return redirect("/logged_in_confirmation")
     else:
-        connection.close()
         return render_template("login.html", email=email, error_message="Email or password is wrong!")
 
 @app.route('/logged_in_confirmation')
@@ -799,15 +817,4 @@ def action_page():
     
 if __name__ == "__main__":
     app.config['TEMPLATES_AUTO_RELOAD'] = True
-    loop = asyncio.get_event_loop()
-    aio_app = web.Application()
-    wsgi = WSGIHandler(app)
-
-    # Serves static files
-    aio_app.add_routes([web.static('/images', os.path.join(os.path.dirname(os.path.realpath(__file__)), 'images'))])
-    aio_app.add_routes([web.static('/static', os.path.join(os.path.dirname(os.path.realpath(__file__)), 'static'))])
-
-    aio_app.router.add_route('GET', '/listen', socket)
-    aio_app.router.add_route('*', '/{path_info: *}', wsgi.handle_request)
-    
-    web.run_app(aio_app, port=5555, host='localhost')
+    socketio.run(app, port=5555, debug=True)
