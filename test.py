@@ -3,24 +3,17 @@ from flask_socketio import SocketIO
 from werkzeug.utils import secure_filename
 import sqlite3
 import os
-import uuid
 import random
-import ssl
 import string
 from dotenv import load_dotenv
 import logging
-import websockets
 
 import os
-from aiohttp import web
 
-from typing import Dict, Callable
 
 # from openai import OpenAI
 from deepgram import DeepgramClient, DeepgramClientOptions, LiveTranscriptionEvents, LiveOptions, Microphone
-
 import pandas as pandas
-import time
 load_dotenv()
 
 OpenAI_api_key = "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"
@@ -64,7 +57,7 @@ def on_message(self, result, **kwargs):
     else:
         if result.is_final:
             print(f"Sentence: {sentence}")
-            socketio.emit("translated", {"sentence": sentence})
+            socketio.emit("transcription", {"sentence": sentence})
         else:
             # These are useful if you need real time captioning of what is being spoken
             print(f"Interim Results: {sentence}")

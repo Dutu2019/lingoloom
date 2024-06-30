@@ -64,13 +64,10 @@
         socket.on("connect", () => {
           document.querySelector("#status").textContent = "Connected";
           socket.emit("language", language);
-          socket.on("translated", ({sentence}) => {
-            console.log(sentence);
-          });
         });
 
-        socket.on("transcription", (message) => {
-          const received = message.data;
+        socket.on("transcription", ({ sentence }) => {
+          const received = sentence;
           console.log(received);
 
           if (received) {
